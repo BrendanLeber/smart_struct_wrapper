@@ -1,0 +1,15 @@
+group: travis_latest
+sudo: required
+language: cpp
+compiler: clang
+
+addons:
+  apt:
+    packages:
+      - cmake
+
+script:
+  - mkdir build
+  - cd build
+  - cmake ..
+  - cmake --build .
