@@ -31,6 +31,19 @@ Pull requests are welcome.
   `clang-format` followed by `clang-tidy` so they can be run easily
   with an editor macro.
 
+## Third-Party Tools
+
+This project is licensed under the MIT license.  However, it is built
+and tested using third party tools and services!  Thanks a lot!
+
+- [**Catch2**](https://github.com/catchorg/Catch2), the unit test
+  framework.
+- [**CMake**](https://cmake.org), the build configuration.
+- [**Travis CI**](https://travis-ci.org), [continuous
+  integration](https://travis-ci.org/BrendanLeber/smart_wrapper) on
+  Linux.
+- [**Valgrind**](http://valgrind.org), used to check for memory leaks.
+
 ## License
 
 <img align="right" src="http://opensource.org/trademarks/opensource/OSI-Approved-License-100x137.png">

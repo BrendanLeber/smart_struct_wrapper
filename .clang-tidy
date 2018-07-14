@@ -1,7 +1,7 @@
 ---
-Checks:          'clang-diagnostic-*,clang-analyzer-*,*,-google-*,-fuchsia-*'
+Checks:          'clang-diagnostic-*,clang-analyzer-*,*,-llvm-header-guard,-google-*,-fuchsia-*'
 WarningsAsErrors: ''
-HeaderFilterRegex: ''
+HeaderFilterRegex: './*.hpp'
 AnalyzeTemporaryDtors: false
 FormatStyle:     none
 User:            bleber

@@ -1,11 +1,39 @@
 #pragma once
 
-#include <iostream>
+/**
+ * Smart Wrapper for Legacy Code
+ * Version 0.0.1
+ * https://github.com/BrendanLeber/smart_wrapper
+ *
+ * Licened under the MIT License <http://opensource.org/licenses/MIT>.
+ *
+ * Copyright (c) 2018 Brendan Leber
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to permit
+ * persons to whom the Software is furnished to do so, subject to the
+ * following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ */
+
 #include <memory>
 #include <new>
+#include <utility>
 
 #include "legacy.h"
-
 
 class smart_wrapper
 {
@@ -14,47 +42,80 @@ private:
     {
         void operator()(legacy_t* ptr)
         {
-            std::cout << "legacy_deleter::operator()(" << ptr << ")\n";
             auto tmp = ptr;
             legacy_free(&tmp);
         }
     };
 
-    using legacy_sp = std::unique_ptr<legacy_t, legacy_deleter>;
-    legacy_sp wrap;
+    std::unique_ptr<legacy_t, legacy_deleter> sp;
+
+protected:
+    legacy_t* raw()
+    {
+        return sp.get();
+    }
+
+    legacy_t const* raw() const
+    {
+        return sp.get();
+    }
 
 public:
     smart_wrapper()
-        : wrap(legacy_new(0))
+        : sp(legacy_new(0))
     {
-        std::cout << "smart_wrapper::smart_wrapper() - " << wrap.get() << '\n';
-        if (!wrap) {
+        if (!sp) {
             throw std::bad_alloc();
         }
     }
 
-    smart_wrapper(smart_wrapper const& src) = delete;             // copy constructor
-    smart_wrapper(smart_wrapper&& src)      = delete;             // move constructor
-    smart_wrapper& operator=(smart_wrapper const& rhs) = delete;  // copy assignment operator
-    smart_wrapper& operator=(smart_wrapper&& rhs) = delete;       // move assignment operator
-
-    ~smart_wrapper()
+    explicit smart_wrapper(int value)
+        : sp(legacy_new(value))
     {
-        std::cout << "smart_wrapper::~smart_wrapper() - " << wrap.get() << '\n';
-        // std::unique_ptr<> calls operator() of legacy_deleter to
-        // delete the underlying object by calling legacy_free().
+        if (!sp) {
+            throw std::bad_alloc();
+        }
     }
 
-    int get_value() const
+    smart_wrapper(smart_wrapper const& src)
+        : sp(legacy_clone(src.raw()))
     {
-        auto v = legacy_get_value(wrap.get());
-        std::cout << "smart_wrapper::get_value(" << wrap.get() << ") -> " << v << '\n';
-        return v;
     }
 
-    void set_value(int new_value)
+    smart_wrapper(smart_wrapper&& src) noexcept
+        : sp(std::move(src.sp))
     {
-        std::cout << "smart_wrapper::set_value(" << wrap.get() << ", " << new_value << ")\n";
-        legacy_set_value(wrap.get(), new_value);
+    }
+
+    smart_wrapper& operator=(smart_wrapper const& rhs)
+    {
+        if (this != &rhs) {
+            sp.reset(legacy_clone(rhs.raw()));
+        }
+
+        return *this;
+    }
+
+    smart_wrapper& operator=(smart_wrapper&& rhs) noexcept
+    {
+        sp = std::move(rhs.sp);
+        return *this;
+    }
+
+    /**
+     * std::unique_ptr<> calls operator() of legacy_deleter to
+     * delete the underlying object via calling legacy_free().
+     */
+    ~smart_wrapper() = default;
+
+    // accessors for the underlying legacy C struct code
+    int value() const
+    {
+        return legacy_get_value(raw());
+    }
+
+    void value(int new_value)
+    {
+        legacy_set_value(raw(), new_value);
     }
 };
