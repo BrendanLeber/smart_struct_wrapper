@@ -32,57 +32,115 @@
 
 #include "smart_wrapper.hpp"
 
+bool test_default_constructor()
+{
+    constexpr int expected = 0;
+    smart_wrapper wrapped;
+    return wrapped.value() == expected;
+}
+
+bool test_explicit_constructor()
+{
+    constexpr int expected = 42;
+    smart_wrapper wrapped{ expected };
+    return wrapped.value() == expected;
+}
+
+bool test_copy_constructor()
+{
+    constexpr int expected = 23;
+    smart_wrapper original{ expected };
+    smart_wrapper copy{ original };  // NOLINT we know we aren't using `original`
+    return copy.value() == expected;
+}
+
+bool test_move_constructor()
+{
+    constexpr int expected = 32;
+    smart_wrapper original{ expected };
+    smart_wrapper moved{ std::move(original) };
+    return moved.value() == expected;
+}
+
 TEST_CASE("Constructors")
 {
-    // default constructor
-    REQUIRE([]() -> bool {
-        constexpr int expected = 0;
-        smart_wrapper wrapped;
-        return wrapped.value() == expected;
-    });
-
-    // explicit constructor
-    REQUIRE([]() -> bool {
-        constexpr int expected = 42;
-        smart_wrapper wrapped{ expected };
-        return wrapped.value() == expected;
-    });
-
-    // copy constructor
-    REQUIRE([]() -> bool {
-        constexpr int expected = 23;
-        smart_wrapper original{ expected };
-        smart_wrapper copy{ original };
-        return copy.value() == expected;
-    });
-
-    // move constructor
-    REQUIRE([]() -> bool {
-        constexpr int expected = 32;
-        smart_wrapper original{ expected };
-        smart_wrapper moved{ std::move(original) };
-        return moved.value() == expected;
-    });
+    REQUIRE(test_default_constructor());
+    REQUIRE(test_explicit_constructor());
+    REQUIRE(test_copy_constructor());
+    REQUIRE(test_move_constructor());
 }
 
 
+bool test_copy_assignment()
+{
+    constexpr int expected = 1023;
+    smart_wrapper source{ expected };
+    smart_wrapper target;
+    target = source;
+    return (target.value() == source.value()) && (target.value() == expected);
+}
+
+bool test_move_assignment()
+{
+    constexpr int expected = 1966;
+    smart_wrapper source{ expected };
+    smart_wrapper target;
+    target = std::move(source);
+    return target.value() == expected;
+}
+
+bool test_self_copy_assignment()
+{
+    constexpr int expected = 1023;
+    smart_wrapper target{ expected };
+    target = target;
+    return target.value() == expected;
+}
+
+/**
+ * Turn off self move warnings because we are testing self move to make
+ * sure it doesn't introduce any memory errors.
+ */
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wself-move"
+
+bool test_self_move_assignment()
+{
+    constexpr int expected = 1966;
+    smart_wrapper target{ expected };
+    target = std::move(target);
+    return target.value() == expected;  // NOLINT
+}
+
+#pragma clang diagnostic pop
+
 TEST_CASE("Assignment")
 {
-    // copy assignment
-    REQUIRE([]() -> bool {
-        constexpr int expected = 1023;
-        smart_wrapper source{ expected };
-        smart_wrapper target;
-        target = source;
-        return (target.value() == source.value()) && (target.value() == expected);
-    });
+    REQUIRE(test_copy_assignment());
+    REQUIRE(test_move_assignment());
+    REQUIRE(test_self_copy_assignment());
+    REQUIRE(test_self_move_assignment());
+}
 
-    // move assignment
-    REQUIRE([]() -> bool {
-        constexpr int expected = 1966;
-        smart_wrapper source{ expected };
-        smart_wrapper target;
-        target = std::move(source);
-        return target.value() == expected;
-    });
+
+bool test_get_default_accessor()
+{
+    constexpr int expected = 0;
+    smart_wrapper sw{};
+    return expected == sw.value();
+}
+
+bool test_set_get_accessor()
+{
+    constexpr int expected = 52;
+    smart_wrapper sw{};
+    sw.value(expected);
+    return expected == sw.value();
+}
+
+
+TEST_CASE("Accessors")
+{
+    REQUIRE(test_get_default_accessor());
+    REQUIRE(test_set_get_accessor());
 }

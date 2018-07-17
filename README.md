@@ -4,6 +4,7 @@ A modern C++ wrapper for old C structs using a `std::unique_ptr<>`
 smart pointer.
 
 [![Build Status](https://travis-ci.org/BrendanLeber/smart_wrapper.svg?branch=master)](https://travis-ci.org/BrendanLeber/smart_wrapper)
+[![MIT License][license-badge]](LICENSE.md)
 
 ## Why I created this?
 
