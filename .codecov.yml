@@ -1,0 +1,8 @@
+coverage:
+  ignore:
+    - "catch2/catch.hpp"
+    - "build/**/*"
+    - "coverage/CMakeFiles/**/*"
+
+codecov:
+  branch: master

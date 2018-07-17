@@ -1,0 +1,11 @@
+#!/bin/bash
+
+mkdir coverage
+cd coverage
+cmake .. -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON
+cmake --build .
+./smart_wrapper
+llvm-profdata merge default.profraw -o default.profdata
+llvm-cov show -format html -instr-profile default.profdata ./smart_wrapper > coverage.html
+llvm-cov show -instr-profile default.profdata ./smart_wrapper > coverage.txt
+bash ../tools/codecov -X gcov -X search -y .codecov.yml -f coverage.txt -d

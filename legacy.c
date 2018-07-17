@@ -33,7 +33,7 @@ legacy_t* legacy_new(int value)
 {
     legacy_t* ptr = (legacy_t*) malloc(sizeof(legacy_t));
     if (ptr != NULL) {
-	ptr->value = value;
+        ptr->value = value;
     }
     return ptr;
 }
@@ -43,7 +43,7 @@ legacy_t* legacy_clone(legacy_t const* src)
     assert(src != NULL);
     legacy_t* clone = (legacy_t*) malloc(sizeof(legacy_t));
     if (clone != NULL) {
-	memcpy(clone, src, sizeof(legacy_t));
+        memcpy(clone, src, sizeof(legacy_t));
     }
     return clone;
 }
@@ -52,8 +52,8 @@ void legacy_free(legacy_t** pptr)
 {
     assert(pptr != NULL);
     if (*pptr != NULL) {
-	free(*pptr);
-	*pptr = NULL;
+        free(*pptr);
+        *pptr = NULL;
     }
 }
 

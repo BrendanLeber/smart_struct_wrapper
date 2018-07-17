@@ -31,6 +31,10 @@ endif()
 
 
 add_library(legacy legacy.c)
+if(ENABLE_COVERAGE)
+  message(STATUS "Enabling code coverage for liblegacy.")
+  target_compile_options(legacy PRIVATE -fprofile-instr-generate -fcoverage-mapping)
+endif()
 
 
 add_executable(smart_wrapper smart_wrapper.cpp)
@@ -39,6 +43,7 @@ target_compile_definitions(smart_wrapper PUBLIC _GLIBCXX_DEBUG)
 target_link_libraries(smart_wrapper PRIVATE legacy)
 target_link_libraries(smart_wrapper INTERFACE catch2/catch.hpp)
 if(ENABLE_COVERAGE)
+  message(STATUS "Enabling code coverage for smart_wrappers.")
   target_compile_options(smart_wrapper PRIVATE -fprofile-instr-generate -fcoverage-mapping)
   target_link_libraries(smart_wrapper PRIVATE -fprofile-instr-generate -fcoverage-mapping)
 endif()
