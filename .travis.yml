@@ -1,12 +1,17 @@
-group: travis_latest
-sudo: required
 language: cpp
+sudo: false
+dist: trusty
 compiler: clang
+os: linux
 
 addons:
   apt:
+    sources:
+      - llvm-toolchain-trusty-5.0
     packages:
       - cmake
+      - clang-6.0
+      - llvm-5.0
 
 script:
   - mkdir build
