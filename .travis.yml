@@ -11,5 +11,12 @@ addons:
 script:
   - mkdir build
   - cd build
-  - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo
+  - cmake .. -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON
   - cmake --build .
+
+after_success:
+  - cd ${TRAVIS_BUILD_DIR}/build
+  - ./smart_wrapper
+  - llvm-profdata-5.0 merge default.profraw -o default.profdata
+  - llvm-cov-5.0 show -instr-profile default.profdata ./smart_wrapper > coverage.txt
+  - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
